@@ -1,22 +1,25 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 load_dotenv()
 
 DATABASE_URL = os.getenv('DATABASE_URL')
+# DATABASE_URL = 'sqlite:///.app/db.db'
 
 engine = create_engine(
-    DATABASE_URL,
-    echo=True
+    DATABASE_URL, echo = True
 )
 
-Session = sessionmaker(autoflush=False, expire_on_commit=False, bind=engine)
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False
+)
 
 def get_db():
-    db = Session()
+    db = SessionLocal()
     try:
         yield db
     finally:
@@ -24,6 +27,4 @@ def get_db():
 
 class Base(DeclarativeBase):
     pass
-
-
 

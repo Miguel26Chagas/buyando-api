@@ -1,28 +1,41 @@
+import jwt
 import os
 from dotenv import load_dotenv
+
 from passlib.context import CryptContext
-from jose import jwt, JWTError
-from datetime import datetime
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+oauth2_schema = OAuth2PasswordBearer(tokenUrl='/auth/login-form')
+oaut2_form = OAuth2PasswordRequestForm
+
 
 load_dotenv()
 
 SECRET_KEYS = os.getenv('SECRET_KEYS')
 ALG = os.getenv('ALG')
 
-def crypt_password():
-    pwd_context = CryptContext(
-        schemes='argon2',
-        deprecated="auto"
-    )
-    return pwd_context
+SCOPE_ROLE = {
+    'admin': [],
+    'seller': [],
+    'buyer': []
+}
 
-def token(user_id, user_name, date:datetime):
-    date = date
-    claims = {
-        'sub': user_id,
-        'user': user_name,
-        'date': int(date.timestamp())
+def create_token(user: str, time):
+    payload = {
+        'sub': str(user.id),
+        'scopes': SCOPE_ROLE[user.role],
+        'exp': time
     }
+    encoded_jwt = jwt.encode(payload, SECRET_KEYS, ALG)
+    return encoded_jwt
 
-    token = jwt.encode(claims, SECRET_KEYS, ALG)
-    return token
+argon2_context = CryptContext(
+    schemes=['argon2'],
+    deprecated='auto'
+)
+
+def hash_password(password):
+    return argon2_context.hash(password)
+
+def verify_password(password, hashed):
+   return argon2_context.verify(password, hashed)
