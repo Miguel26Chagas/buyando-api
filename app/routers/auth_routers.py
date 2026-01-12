@@ -64,7 +64,8 @@ async def register_user(data: UserForm = Depends(), photo_file: UploadFile = Fil
 @router.post('/login')
 async def login(data: oaut2_form = Depends(), db: AsyncSession = Depends(get_db)):
     smt = select(User).where(or_(User.email == data.username, User.name == data.username))
-    user_db = await db.execute(smt).scalar_one_or_none()
+    res = await db.execute(smt)
+    user_db = res.scalar_one_or_none()
 
     if not user_db:
         raise HTTPException(

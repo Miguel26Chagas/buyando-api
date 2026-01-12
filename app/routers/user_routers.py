@@ -53,6 +53,6 @@ async def update_data(data: UserUpdate, user: User = Depends(verify_token), db: 
         )
     return {'msg': 'Ação concluida!'}
 
-@router.post('/add_photo')
-async def add_photo_user(user: User = Depends(verify_token), files_uploads: UploadFIle, db: AsyncSession = Depends(get_db)):
+# @router.post('/add_photo')
+# async def add_photo_user(user: User = Depends(verify_token), files_uploads: UploadFIle, db: AsyncSession = Depends(get_db)):
     

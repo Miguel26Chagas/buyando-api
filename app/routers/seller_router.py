@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 from app.models import User, Seller
-from app.schemas import UserSchema, SellerSchema
+from app.schemas import SellerSchema
 from app.security import hash_password, verify_password, create_token, oaut2_form
 from app.dependencies import verify_token
 from app.db.database import get_db
