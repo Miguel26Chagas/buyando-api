@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+import asyncio
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy import select, or_
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User
-from app.schemas import UserSchema, LoginSchema 
+from app.schemas import UserResponse
 from app.security import hash_password, verify_password, create_token, oaut2_form
-from app.dependencies import verify_token
+from app.dependencies import verify_token, UserForm
 from app.db.database import get_db
-
+from app.cloudinary import cloudinary_url, cloudinary_uploader
 from datetime import datetime, timezone, timedelta
 
 router = APIRouter(
@@ -14,28 +15,44 @@ router = APIRouter(
     tags=['auth']
 )
 
-@router.post('/register')
-async def register_user(data: UserSchema, db: Session=Depends(get_db)):
+@router.post('/register', response_model=UserResponse)
+async def register_user(data: UserForm = Depends(), photo_file: UploadFile = File(...), db: AsyncSession=Depends(get_db)):
     stmt = select(User).where(User.email == data.email)
-    user_exist = db.execute(stmt).scalar_one_or_none()
+    user_exist = await db.execute(stmt).scalar_one_or_none()
     if user_exist:
         raise HTTPException(
-            status_code=500,
+            status_code=409,
             detail='Email ou nome ja existente'
         )
+
+    secure_url = 'No Profile Photo'
+    public_id = None
+    if photo_file:
+        try:
+            loop = asyncio._get_running_loop()
+            upload_result = await loop.run_in_executor(
+                None,
+                lambda: cloudinary_uploader.upload(photo_file.file)
+            )
+            secure_url = upload_result['secure_url']
+            public_id = upload_result['public_id']
+        except Exception as e:
+            raise HTTPException(status_code=409, detail=f'Erro no Cloudinary, {e}')
 
     password_hash = hash_password(data.password)
 
     user_created = User(
         name = data.name,
         email = data.email,
-        password = password_hash
+        password = password_hash,
+        photo_url = secure_url,
+        public_id = public_id
     )
 
     try:
         db.add(user_created)
-        db.commit()
-        db.refresh(user_created)
+        await db.commit()
+        await db.refresh(user_created)
     except Exception as e:
         db.rollback()
         raise HTTPException(
@@ -45,9 +62,9 @@ async def register_user(data: UserSchema, db: Session=Depends(get_db)):
     return {'msg': f'Usuario registado com Sucesso, {data.name}'}
 
 @router.post('/login')
-async def login(data: LoginSchema, db: Session = Depends(get_db)):
-    smt = select(User).where(or_(User.email == data.email_or_name, User.name == data.email_or_name))
-    user_db = db.execute(smt).scalar_one_or_none()
+async def login(data: oaut2_form = Depends(), db: AsyncSession = Depends(get_db)):
+    smt = select(User).where(or_(User.email == data.username, User.name == data.username))
+    user_db = await db.execute(smt).scalar_one_or_none()
 
     if not user_db:
         raise HTTPException(
@@ -66,30 +83,6 @@ async def login(data: LoginSchema, db: Session = Depends(get_db)):
         'token_type': 'bearer'
     }
     return token
-
-
-@router.post('/login-form')
-async def login_form(form: oaut2_form = Depends(), db: Session = Depends(get_db)):
-    smt = select(User).where(or_(User.email == form.username, User.name == form.username))
-    user_db = db.execute(smt).scalar_one_or_none()
-
-    if not user_db:
-        raise HTTPException(
-            status_code=400,
-            detail='Senha ou email errado.'
-        )
-    elif not verify_password(form.password, user_db.password):
-        raise HTTPException(
-            status_code=400,
-            detail='Senha ou email errado.'
-        )
-    
-    token = {
-        'access_token': create_token(user_db, datetime.now(timezone.utc) + timedelta(minutes=30)),
-        'token_type': 'bearer'
-    }
-    return token
-
 
 @router.get('/refresh')
 async def refresh_token(user: User = Depends(verify_token)):

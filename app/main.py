@@ -1,11 +1,14 @@
 from fastapi import FastAPI
 from app.routers import auth_routers, user_routers, product_routers, seller_router
+from app.routers import order_router
 
 ROUTERS = [
     auth_routers.router, 
     user_routers.router,
     product_routers.router,
-    seller_router.router
+    seller_router.router,
+    order_router.router
+    
 ]
 
 app = FastAPI()

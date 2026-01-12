@@ -5,6 +5,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.db.database import Base
 
 import enum
+import uuid
+from uuid import UUID
 
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
@@ -15,10 +17,12 @@ class UserRole(str, enum.Enum):
 class User(Base):
     __tablename__ = "user"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True, index=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
+    profile_photo: Mapped[str] = mapped_column(String, nullable=False, default='No Profile Photo')
+    public_photo_id: Mapped[str] = mapped_column(String, nullable=True)
 
     role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole), default=UserRole.BUYER, nullable=False)
     activate: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

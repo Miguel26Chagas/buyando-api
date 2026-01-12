@@ -1,11 +1,12 @@
 import jwt
 import os
 from dotenv import load_dotenv
+from uuid import UUID
 
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl='/auth/login-form')
+oauth2_schema = OAuth2PasswordBearer(tokenUrl='/auth/login')
 oaut2_form = OAuth2PasswordRequestForm
 
 

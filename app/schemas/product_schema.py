@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
-
-class ProductSchema(BaseModel):
+from uuid import UUID
+class ProductResponse(BaseModel):
     name: str
     price: float
     qtd: Optional[int] = 0
@@ -14,7 +14,7 @@ class ProductSchema(BaseModel):
 
 class ProductUpadate(BaseModel):
     name: Optional[str] = None
-    seller: Optional[int] = None
+    seller_id: Optional[UUID] = None
     price: Optional[float] = None
     qtd: Optional[str] = None
     category: Optional[str] = None

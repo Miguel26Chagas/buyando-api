@@ -1,11 +1,11 @@
-from fastapi import Depends, HTTPException, APIRouter
+from fastapi import Depends, HTTPException, APIRouter, UploadFile
 from app.dependencies import verify_token
 from app.models import User
 from app.schemas import PasswordSchema, UserUpdate
 from app.security import verify_password, hash_password
 from app.db.database import get_db
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(
     prefix='/user',
@@ -14,9 +14,8 @@ router = APIRouter(
 )
 
 @router.patch('/update/password')
-async def update_password(data:PasswordSchema, user: User = Depends(verify_token), db: Session = Depends(get_db)):
+async def update_password(data:PasswordSchema, user: User = Depends(verify_token), db: AsyncSession = Depends(get_db)):
     password = verify_password(data.password, user.password)
-
     if not password:
         raise HTTPException(
             status_code=400,
@@ -25,7 +24,7 @@ async def update_password(data:PasswordSchema, user: User = Depends(verify_token
     user.password = hash_password(data.new_password)
 
     try:
-        db.commit()
+        await db.commit()
     except Exception as e:
         db.rollback()
         raise HTTPException(
@@ -35,7 +34,7 @@ async def update_password(data:PasswordSchema, user: User = Depends(verify_token
     return {'msg': 'Senha alterada com sucesso!'}
 
 @router.patch('/update/data')
-async def update_data(data: UserUpdate, user: User = Depends(verify_token), db: Session = Depends(get_db)):
+async def update_data(data: UserUpdate, user: User = Depends(verify_token), db: AsyncSession = Depends(get_db)):
 
     if not data.name == None or '':
         user.name = data.name
@@ -43,11 +42,9 @@ async def update_data(data: UserUpdate, user: User = Depends(verify_token), db: 
         user.email = data.email
     else:
         raise HTTPException(status_code=400, detail='Nada aqui pra salvar')
-        
-    
 
     try:
-        db.commit()
+        await db.commit()
     except Exception as e:
         db.rollback()
         raise Exception(
@@ -56,3 +53,6 @@ async def update_data(data: UserUpdate, user: User = Depends(verify_token), db: 
         )
     return {'msg': 'Ação concluida!'}
 
+@router.post('/add_photo')
+async def add_photo_user(user: User = Depends(verify_token), files_uploads: UploadFIle, db: AsyncSession = Depends(get_db)):
+    
