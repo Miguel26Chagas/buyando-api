@@ -10,15 +10,17 @@ from app.db.database import get_db
 from app.cloudinary import cloudinary_url, cloudinary_uploader
 from datetime import datetime, timezone, timedelta
 
+from typing import Optional
 router = APIRouter(
     prefix='/auth',
     tags=['auth']
 )
 
 @router.post('/register', response_model=UserResponse)
-async def register_user(data: UserForm = Depends(), photo_file: UploadFile = File(...), db: AsyncSession=Depends(get_db)):
-    stmt = select(User).where(User.email == data.email)
-    user_exist = await db.execute(stmt).scalar_one_or_none()
+async def register_user(data: UserForm = Depends(), photo_file: UploadFile = File(None), db: AsyncSession=Depends(get_db)):
+    stmt = select(User).where(or_(User.email == data.email, User.name == data.name))
+    res = await db.execute(stmt)
+    user_exist = res.scalar_one_or_none()
     if user_exist:
         raise HTTPException(
             status_code=409,
@@ -29,7 +31,7 @@ async def register_user(data: UserForm = Depends(), photo_file: UploadFile = Fil
     public_id = None
     if photo_file:
         try:
-            loop = asyncio._get_running_loop()
+            loop = asyncio.get_running_loop()
             upload_result = await loop.run_in_executor(
                 None,
                 lambda: cloudinary_uploader.upload(photo_file.file)
@@ -45,8 +47,8 @@ async def register_user(data: UserForm = Depends(), photo_file: UploadFile = Fil
         name = data.name,
         email = data.email,
         password = password_hash,
-        photo_url = secure_url,
-        public_id = public_id
+        profile_photo = secure_url,
+        public_photo_id = public_id
     )
 
     try:
@@ -54,12 +56,12 @@ async def register_user(data: UserForm = Depends(), photo_file: UploadFile = Fil
         await db.commit()
         await db.refresh(user_created)
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(
             status_code=500, 
             detail=f'Erro ao salvar no Banco de dados, {e}'
         )
-    return {'msg': f'Usuario registado com Sucesso, {data.name}'}
+    return user_created
 
 @router.post('/login')
 async def login(data: oaut2_form = Depends(), db: AsyncSession = Depends(get_db)):

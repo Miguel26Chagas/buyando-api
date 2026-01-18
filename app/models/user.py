@@ -22,7 +22,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
     profile_photo: Mapped[str] = mapped_column(String, nullable=False, default='No Profile Photo')
-    public_photo_id: Mapped[str] = mapped_column(String, nullable=True)
+    public_photo_id: Mapped[str] = mapped_column(String, nullable=True, default=None)
 
     role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole), default=UserRole.BUYER, nullable=False)
     activate: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

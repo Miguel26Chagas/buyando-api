@@ -22,7 +22,8 @@ async def verify_token(token: str = Depends(oauth2_schema), db: AsyncSession = D
             detail=f'Acesso negado, verifique a data do token, {e}'
         )
     stmt = select(User).where(User.id == user_id)
-    user = await db.execute(stmt).scalar_one_none()
+    res = await db.execute(stmt)
+    user = res.scalar_one_or_none()
     if not user:
         raise HTTPException(status_code=401, detail="Usuário não encontrado")
 

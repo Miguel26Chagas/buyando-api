@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session, selectinload, load_only
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.dependencies import verify_token
 from app.db.database import get_db
@@ -16,10 +17,11 @@ router = APIRouter(
 )
 
 @router.post('/buying/{seller_id}')
-async def order(seller_id:UUID, user: User = Depends(verify_token), db: Session = Depends(get_db)):    
+async def order(seller_id:UUID, user: User = Depends(verify_token), db: AsyncSession = Depends(get_db)):    
     try:
         stmt = select(Product).where(Product.seller_id == seller_id)
-        products = db.execute(stmt).scalars().all()
+        res = await db.execute(stmt)
+        products = res.scalars().all()
         if not products:
             raise HTTPException(status_code=404, detail="Este vendedor não possui produtos.")
     except Exception as e:
@@ -37,18 +39,19 @@ async def order(seller_id:UUID, user: User = Depends(verify_token), db: Session 
         Order.status == 'PENDENT'
     ).options(selectinload(Order.list_product))
 
-    order = db.execute(stmt2).scalar_one_or_none()
+    res = await db.execute(stmt2)
+    order = res.scalars().all()
     if_new = False
     if not order:
         order = Order(buyer_id = user.id, seller_id = seller_id)
 
         try:
             db.add(order)
-            db.commit()
-            db.refresh(order)
+            await db.commit()
+            await db.refresh(order)
             if_new=True
         except Exception as e:
-            db.rollback()
+            await db.rollback()
             raise HTTPException(
                 status_code=500,
                 detail='Erro ao fazer a compra'
@@ -62,7 +65,7 @@ async def order(seller_id:UUID, user: User = Depends(verify_token), db: Session 
     }
 
 @router.post('/buying/{product_id}/item')
-async def item_order(product_id:UUID, data:ItemOrderSchema, user: User = Depends(verify_token), db: Session = Depends(get_db)):
+async def item_order(product_id:UUID, data:ItemOrderSchema, db: Session = Depends(get_db)):
     stmt = select(Product).filter(Product.id == product_id)
     product = db.execute(stmt).scalar_one_or_none()
 

@@ -4,7 +4,7 @@ from uuid import UUID
 class ProductResponse(BaseModel):
     name: str
     price: float
-    qtd: Optional[int] = 0
+    qtd: int
     category: str
     detail: Optional[str]
     disponible: Optional[bool] = True

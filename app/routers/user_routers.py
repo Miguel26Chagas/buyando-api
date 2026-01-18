@@ -1,9 +1,12 @@
-from fastapi import Depends, HTTPException, APIRouter, UploadFile
+from fastapi import Depends, HTTPException, APIRouter, UploadFile, File
 from app.dependencies import verify_token
 from app.models import User
 from app.schemas import PasswordSchema, UserUpdate
 from app.security import verify_password, hash_password
 from app.db.database import get_db
+from app.cloudinary import cloudinary_uploader
+
+import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -53,6 +56,47 @@ async def update_data(data: UserUpdate, user: User = Depends(verify_token), db: 
         )
     return {'msg': 'Ação concluida!'}
 
-# @router.post('/add_photo')
-# async def add_photo_user(user: User = Depends(verify_token), files_uploads: UploadFIle, db: AsyncSession = Depends(get_db)):
-    
+@router.post('/add_photo')
+async def add_photo_user(user: User = Depends(verify_token), photo_file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
+    old_public_photo_id = user.public_photo_id
+
+    loop = asyncio.get_running_loop()
+    if photo_file:
+        try:
+            upload_result = await loop.run_in_executor(
+                None,
+                lambda: cloudinary_uploader.upload(photo_file.file)
+            )
+            secure_url = upload_result['secure_url']
+            public_id = upload_result['public_id']
+        except Exception as e:
+            raise HTTPException(
+                status_code=409,
+                detail=f'Erro No cloudinary, {e}'
+            )
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail='Por Favor Insira uma Imagem'
+        )
+    user.profile_photo = secure_url
+    user.public_photo_id = public_id
+
+    try:
+        db.add(user)
+        await db.commit()
+
+        if old_public_photo_id:
+            await loop.run_in_executor(None, lambda: cloudinary_uploader.destroy(old_public_photo_id))
+        await db.refresh(user)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f'Erro ao salvar no Banco de dados ,{e}'
+        )
+ 
+    message = "Foto alterada com sucesso" if old_public_photo_id else "Foto adicionada com sucesso"
+    return {
+        "msg": message,
+        "url": user.profile_photo
+    }

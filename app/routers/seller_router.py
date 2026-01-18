@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, or_
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from app.models import User, Seller
 from app.schemas import SellerSchema
@@ -14,9 +15,10 @@ router = APIRouter(
 )
 
 @router.post('/active')
-async def seller_active(data: SellerSchema, user: User = Depends(verify_token), db: Session = Depends(get_db)):
+async def seller_active(data: SellerSchema, user: User = Depends(verify_token), db: AsyncSession = Depends(get_db)):
     stmt = select(Seller).where(Seller.user_id == user.id)
-    seller_exist = db.execute(stmt).scalar_one_or_none()
+    res = await db.execute(stmt)
+    seller_exist = res.scalar_one_or_none()
 
     if seller_exist:
         raise HTTPException(
@@ -39,10 +41,10 @@ async def seller_active(data: SellerSchema, user: User = Depends(verify_token), 
 
     try:
         db.add(seller_active)
-        db.commit()
-        db.refresh(seller_active)
+        await db.commit()
+        await db.refresh(seller_active)
     except Exception as e:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(
             status_code=500,
             detail = 'Ocorreu um erro ao salvar no banco de dados'

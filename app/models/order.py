@@ -16,10 +16,10 @@ class StatusOrder(enum.Enum):
 class Order(Base):
     __tablename__ = 'order'
 
-    id: Mapped[UUID] = mapped_column(Integer, primary_key=True, index=True, default=uuid.uuid4)
+    id: Mapped[UUID] = mapped_column(primary_key=True, index=True, default=uuid.uuid4)
     buyer_id: Mapped[UUID] = mapped_column(ForeignKey('user.id'), nullable=True, index=True)
     seller_id: Mapped[UUID] = mapped_column(ForeignKey('seller.id'),)
-    price_total: Mapped[float] = mapped_column(Float, CheckConstraint('price_total >= 0'), nullable=True, default=0)
+    price_total: Mapped[float] = mapped_column(Float, CheckConstraint('price_total >= 0'), default=0)
     status: Mapped[StatusOrder] = mapped_column(SQLEnum(StatusOrder), default=StatusOrder.PENDENT)
 
     list_product: Mapped[List['ItemOrder']] =  relationship('ItemOrder', back_populates='order', cascade='all, delete')
