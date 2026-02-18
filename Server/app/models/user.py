@@ -21,7 +21,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
-    profile_photo: Mapped[str] = mapped_column(String, nullable=False, default='No Profile Photo')
+    profile_photo: Mapped[str] = mapped_column(String, nullable=True, default='No Profile Photo')
     public_photo_id: Mapped[str] = mapped_column(String, nullable=True, default=None)
 
     role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole), default=UserRole.BUYER, nullable=False)

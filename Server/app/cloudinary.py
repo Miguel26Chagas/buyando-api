@@ -20,13 +20,13 @@ cloudinary.config(
 )
 
 PHOTO_PROFILES = {
-    "thumbnail": {"width": 150, "height": 150, "crop": "thumb"},
+    "thumbnail": {"width": 100, "height": 100, "crop": "thumb"},
     "order_list": {"width": 300, "height": 300, "crop": "fill"},
     "full_hd": {"width": 1920, "height": 1080, "crop": "fit"},
     "standard": {"width": 600, "height": 600, "crop": "fill"}
 }
 
-def transform_cloudinary_url(public_id: str, profile:str = 'standard') -> str:   
+def transform_cloudinary_url(public_id: str | None, profile:str = 'standard') -> str:   
     config = PHOTO_PROFILES.get(profile, PHOTO_PROFILES['standard'])
     url, _ = cloudinary_url(
         public_id,

@@ -1,11 +1,10 @@
 from fastapi import Depends, HTTPException, APIRouter, UploadFile, File
 from app.dependencies import verify_token
 from app.models import User
-from app.schemas import PasswordSchema, UserUpdate
+from app.schemas import PasswordSchema, UserUpdate, UserMe
 from app.security import verify_password, hash_password
 from app.db.database import get_db
 from app.cloudinary import cloudinary_uploader
-
 
 import asyncio
 
@@ -16,6 +15,10 @@ router = APIRouter(
     tags=['user'],
     dependencies=[Depends(verify_token)]
 )
+
+@router.get('/me', response_model = UserMe)
+async def me(user: User = Depends(verify_token)):
+    return user
 
 @router.patch('/update/password')
 async def update_password(data:PasswordSchema, user: User = Depends(verify_token), db: AsyncSession = Depends(get_db)):

@@ -6,6 +6,7 @@ from uuid import UUID
 from app.schemas import SellerResponseBase
 
 from app.cloudinary import transform_cloudinary_url
+
 class ProductResponse(BaseModel):
     id: UUID
     name: str
@@ -19,6 +20,7 @@ class ProductResponse(BaseModel):
     photo_urls: Optional[List['PhotosProductResponse']]
     class Config:
         from_attributes = True
+
 class PhotosProductResponse(BaseModel):
     public_photo_id: str
 

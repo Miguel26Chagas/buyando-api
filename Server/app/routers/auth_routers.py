@@ -83,7 +83,7 @@ async def login(data: oaut2_form = Depends(), db: AsyncSession = Depends(get_db)
     token = {
         'access_token': create_token(user_db, datetime.now(timezone.utc) + timedelta(minutes=30)),
         'refresh_token': create_token(user_db, datetime.now(timezone.utc) + timedelta(days=7)),
-        'token_type': 'bearer'
+        'token_type': 'bearer',
     }
     return token
 
