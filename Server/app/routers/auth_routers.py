@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 @router.post('/register', response_model=UserResponse)
-async def register_user(data: UserForm = Depends(), photo_file: UploadFile = File(None), db: AsyncSession=Depends(get_db)):
+async def register_user(data: UserForm = Depends(), photo_file: Optional[UploadFile] = File(None), db: AsyncSession=Depends(get_db)):
     stmt = select(User).where(or_(User.email == data.email, User.name == data.name))
     res = await db.execute(stmt)
     user_exist = res.scalar_one_or_none()
