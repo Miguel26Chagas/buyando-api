@@ -83,6 +83,7 @@ async def add_photo_user(user: User = Depends(verify_token), photo_file: UploadF
             status_code=400,
             detail='Por Favor Insira uma Imagem'
         )
+
     user.profile_photo = secure_url
     user.public_photo_id = public_id
 

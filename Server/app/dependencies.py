@@ -1,5 +1,6 @@
 from fastapi import HTTPException, Depends, Form
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 from app.db.database import get_db
 from app.security import oauth2_schema

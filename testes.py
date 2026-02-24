@@ -1,11 +1,8 @@
-import secrets
-import string
+from fastapi import BackgroundTasks, FastAPI
 
-token = secrets.token_urlsafe(32)
-# print(token)
+app = FastAPI()
 
-
-def generate_secure_delivery_code():
-    return ''.join(secrets.choice(string.digits) for _ in range(6))
-
-print(generate_secure_delivery_code())
+@app.post("/send-notification/{email}")
+async def send_notification(email: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(write_notification, email, message="some notification")
+    return {"message": "Notification sent in the background"}
