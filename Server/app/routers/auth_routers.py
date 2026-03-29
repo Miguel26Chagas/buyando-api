@@ -1,10 +1,8 @@
-import asyncio
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
-from sqlalchemy import select, or_
+from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User
 from app.schemas import UserResponse
-from app.security import verify_password, create_token, oaut2_form
+from app.security import create_token, oaut2_form
 from app.dependencies import verify_token, UserForm
 from app.db.database import get_db
 from datetime import datetime, timezone, timedelta
