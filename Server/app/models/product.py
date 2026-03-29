@@ -36,3 +36,10 @@ class PhotosProduct(Base):
     photo_url: Mapped[str] = mapped_column(String, nullable=True)
     public_photo_id: Mapped[str] = mapped_column(String, nullable=True)
     product = relationship('Product', back_populates='photo_urls')
+
+class Category (Base):
+    __tablename__ = 'category'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, index=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    

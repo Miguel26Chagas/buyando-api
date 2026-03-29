@@ -24,5 +24,6 @@ class User(Base):
     profile_photo: Mapped[str] = mapped_column(String, nullable=True, default='No Profile Photo')
     public_photo_id: Mapped[str] = mapped_column(String, nullable=True, default=None)
 
+    # create_at: Mapped[str] = mapped_column()
     role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole), default=UserRole.BUYER, nullable=False)
     activate: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
