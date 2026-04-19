@@ -103,3 +103,4 @@ class OrderService:
         order = await self.order_repo.check_status_payment(order_id)
         if not order or not order.status == 'AWAITING_PAYMENT':
             raise HTTPException(status_code=400, detail='Nao ha compra a ser pago!')
+        return 'Confirm'

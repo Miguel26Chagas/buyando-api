@@ -37,16 +37,8 @@ async def checkout_order(order_id:UUID, user: User = Depends(verify_token), db: 
 
 @router.post('/{order_id}/confirm_payment')
 async  def confirm_delivery(order_id: UUID, user = Depends(verify_token), db: AsyncSession = Depends(get_db)):
-    stmt = select(Order).where(and_(
-        Order.id == order_id,
-        order.buyer_id == user.id,
-        Order.status == 'AWAITING_PAYMENT',
-    )).options(selectinload(Order.list_product))
-    res = await db.execute(stmt)
-    order = res.scalar_or_none()
-
-    if not order or not order.status == 'AWAITING_PAYMENT':
-        raise HTTPException(status_code=400, detail='Nao ha compra a ser pago!')
+    order_service = OrderService(db)
+    return await order_service.confirm_payment(order_id)
      
 @router.get('/me', response_model=List[OrderResponse])
 async def my_orders(user: User = Depends(verify_token), db: AsyncSession = Depends(get_db)):
