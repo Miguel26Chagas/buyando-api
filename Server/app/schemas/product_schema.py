@@ -33,7 +33,7 @@ class PhotosProductResponse(BaseModel):
     class Config:
         from_attributes = True
 
-class ProductUpdate(BaseModel):
+class ProductUpdateSchema(BaseModel):
     name: Optional[str] = None
     price: Optional[float] = None
     qtd_stock: Optional[int] = None

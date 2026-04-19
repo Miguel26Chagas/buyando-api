@@ -35,8 +35,44 @@ class UserRepo:
         res = await self.db.execute(stmt)
         return res.scalar_one_or_none()
 
-    async def update_user(self):
-        pass
+    async def update_user(self, data, user: User):
+        user.name = data.name or user.name
+        user.email = data.email or user.email
+
+        try:
+            await self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            print(f'Erro Ao Salvar no banco de Dados: {e}')
+            raise e
+        return {'msg': 'Alteracao feita com sucesso!'}
+
+            
+
+    async def update_password_user(self, password, user: User) -> bool:
+        user.password = password
+        try:
+            await self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            print(f'Erro Ao Salvar no banco de Dados: {e}')
+            return False
+        return True
 
     async def delete_user(self):
         pass
+
+    async def add_photo(self, secure_url, public_id, user: User):
+        self.db
+
+        user.profile_photo = secure_url
+        user.public_photo_id = public_id
+
+        try:
+            await self.db.commit()
+            # await self.db.refresh(user)
+        except Exception as e :
+            await self.db.rollback()
+            print(f'Erro Ao Salvar no banco de Dados: {e}')
+            raise e
+                

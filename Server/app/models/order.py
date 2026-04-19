@@ -26,7 +26,7 @@ class Order(Base):
     price_total: Mapped[float] = mapped_column(Float, CheckConstraint('price_total >= 0'), default=0)
     status: Mapped[StatusOrder] = mapped_column(SQLEnum(StatusOrder), default=StatusOrder.PENDENT)
     secret_hash: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    delivery_code: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    # delivery_code: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     paid_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 
     list_product: Mapped[List['ItemOrder']] =  relationship('ItemOrder', back_populates='order', cascade='all, delete')
@@ -42,6 +42,7 @@ class ItemOrder(Base):
     name_product: Mapped[str] = mapped_column(String, nullable=True)
     product_id: Mapped[UUID] = mapped_column(ForeignKey('product.id'), nullable=True)
     qtd_item: Mapped[int] = mapped_column(Integer, CheckConstraint('qtd_item > 0'), default=1)
-    price: Mapped[float] = mapped_column(Float,CheckConstraint('price >= 0'), nullable=True)
+    # each_price: Mapped[float] = mapped_column(Float, CheckConstraint('price >= 0'))
+    price: Mapped[float] = mapped_column(Float, CheckConstraint('price >= 0'), nullable=True)
 
     order: Mapped['Order'] = relationship('Order', back_populates='list_product', cascade='all, delete')
