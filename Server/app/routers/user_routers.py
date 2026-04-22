@@ -37,7 +37,7 @@ async def update_data(data: UserUpdate,
    
     return {'msg': 'Ação concluida!'}
 
-@router.post('/add_photo')
+@router.patch('/add_photo')
 async def add_photo_user(background_tasks: BackgroundTasks,
                          user: User = Depends(verify_token),photo_file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
     user_service = UserService(db)

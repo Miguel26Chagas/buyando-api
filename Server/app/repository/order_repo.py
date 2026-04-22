@@ -30,7 +30,6 @@ class OrderRepo:
             self.db.add(order)
             await self.db.commit()
             await self.db.refresh(order)
-            order.list_product = []
         except Exception as e:
             await self.db.rollback()
             print(f'Erro ao salvar no banco de dados: {e}')
@@ -109,5 +108,3 @@ class OrderRepo:
         )).options(selectinload(Order.list_product))
         res = await self.db.execute(stmt)
         return res.scalar_or_none()
-
-

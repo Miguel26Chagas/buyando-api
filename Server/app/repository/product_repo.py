@@ -27,6 +27,7 @@ class ProductRepo:
             self.db.rollback()
             print(f'Erro ao salvar no Banco de Dados: {e}')
             raise e
+        return product
         
     async def delete_product(self, product: Product):
         try:

@@ -6,7 +6,7 @@ class OrderResponse(BaseModel):
     buyer_id: UUID
     seller_id: UUID
     status: str
-    # each_price: float
+    each_price: float
     price_total: float
     list_product: List['ItemOrderResponse']
     class Config:

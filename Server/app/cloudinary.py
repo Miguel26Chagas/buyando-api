@@ -3,6 +3,8 @@ import cloudinary
 import cloudinary.uploader
 from cloudinary.utils import cloudinary_url
 
+import asyncio
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -37,3 +39,16 @@ def transform_cloudinary_url(public_id: str | None, profile:str = 'standard') ->
     )
 
     return url
+
+async def add_any_photos_in_cloudinary(files_urls):
+    loop = asyncio.get_running_loop()
+    try:
+        async def upload_wrapper(file):
+            content = await file.read()
+            return await loop.run_in_executor(None, lambda: cloudinary_uploader.upload(content))
+        responses = await asyncio.gather(*(upload_wrapper(f) for f in files_urls))
+    except Exception as e:
+        print(f'Erro ao adicionar imagens no cloudnary: {e}')
+        raise e
+    return responses
+

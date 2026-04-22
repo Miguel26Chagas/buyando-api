@@ -55,4 +55,17 @@ class ProductForm():
         self.category = category
         self.detail = detail
         self.disponible = disponible
+
+# class ProductUpdateForm():
+#     def __init__(self,
+#                  name: str,
+#                  price: float,
+#                  qtd_stock: int,
+#                  detail: str,
+#                  disponible: bool):
         
+#         self.name = name
+#         self.price = price
+#         self.qtd_stock = qtd_stock
+#         self.detail = detail
+#         self.disponible = disponible

@@ -66,7 +66,7 @@ class UserService:
             )
 
         token = {
-            'access_token': create_token(username_exist, datetime.now(timezone.utc) + timedelta(minutes=30)),
+            'access_token': create_token(username_exist, datetime.now(timezone.utc) + timedelta(minutes=60)),
             'refresh_token': create_token(username_exist, datetime.now(timezone.utc) + timedelta(days=7)),
             'token_type': 'bearer',
         }
@@ -104,7 +104,7 @@ class UserService:
                 secure_url = upload_result['secure_url']
                 public_id = upload_result['public_id']
             except Exception as e:
-                print(f'Erro no cloudinary, {e}')
+                print(f'Erro no cloudinary: {e}')
                 raise HTTPException(
                     status_code=409,
                     detail=f'Erro Ao Salvar a Imagem'

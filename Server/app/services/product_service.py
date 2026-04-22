@@ -2,7 +2,7 @@ import asyncio
 from fastapi import HTTPException, File, UploadFile, Depends
 from app.models import Product, User, PhotosProduct
 from app.repository import ProductRepo, SellerRepo, RefreshDataRepo
-from app.cloudinary import cloudinary_uploader
+from app.cloudinary import add_any_photos_in_cloudinary
 from app.dependencies import ProductForm
 from app.schemas import ProductUpdateSchema
 
@@ -17,7 +17,7 @@ class ProductService():
         self.seller_repo = seller_repo(db)
         self.refresh_datas_repo = refresh_datas_repo(db)
 
-    async def product(self, user: User, data: ProductForm = Depends(), file_url: List[UploadFile] = File(...)):
+    async def product(self, user: User, data: ProductForm = Depends(), files_urls: List[UploadFile] = File(...)):
         if not user.role == 'seller':
             raise HTTPException(
                 status_code=403,
@@ -29,12 +29,8 @@ class ProductService():
             raise HTTPException(status_code=403, detail='Usuario nao e vendedor')
         
         photos = []
-        loop = asyncio.get_running_loop()
         try:
-            async def upload_wrapper(file):
-                content = await file.read()
-                return await loop.run_in_executor(None, lambda: cloudinary_uploader.upload(content))
-            responses = await asyncio.gather(*(upload_wrapper(f) for f in file_url))
+            responses = await add_any_photos_in_cloudinary(files_urls)
             photos = [
                 PhotosProduct(
                     photo_url = res['secure_url'],
@@ -97,7 +93,10 @@ class ProductService():
         return {'msg': 'Apagado com sucesso!'}
 
     async def all_products(self):
-        products = await self.product_repo.list_products()
+        products = await self.product_repo.list_all_products()
         if not products:
             raise HTTPException(status_code=404, detail='Nao ha produtos disponiveis')
         return products
+
+    async def update_photos_product(self):
+        pass

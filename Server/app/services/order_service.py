@@ -51,7 +51,7 @@ class OrderService:
                 if product.qtd_stock < data.qtd_item:
                     raise HTTPException(status_code=400, detail="Estoque insuficiente")
                 exist_item_order.qtd_item = data.qtd_item
-                # exist_item_order.each_price = product.price
+                exist_item_order.each_price = product.price
                 exist_item_order.price = product.price * data.qtd_item
                 order_item = exist_item_order
                 order = await self.order_repo.update_item_order(order, order_item)
@@ -64,7 +64,7 @@ class OrderService:
                 if product.qtd_stock < data.qtd_item:
                     raise HTTPException(
                         status_code=400,
-                        detail=f'Nao Ha essa quantidade no stock, só ha {product.qtd_stock}'
+                        detail=f'Nao Ha essa quantidade no stock, Presumo que haja mais ou menos {product.qtd_stock - 1}'
                     )
                 order = await self.order_repo.add_item_order(order, product, data)
         except Exception as e:
