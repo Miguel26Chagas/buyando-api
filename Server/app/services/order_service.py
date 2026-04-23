@@ -1,5 +1,6 @@
 from fastapi import HTTPException, UploadFile, File, BackgroundTasks
-from app.models import Order, User, ItemOrder, StatusOrder
+from app.models import Order, User, ItemOrder
+from app.models.types import StatusOrder
 from app.repository import OrderRepo, ProductRepo, SellerRepo, RefreshDataRepo
 from app.schemas import ItemOrderSchema
 from uuid import UUID

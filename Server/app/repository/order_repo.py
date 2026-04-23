@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, load_only
 from sqlalchemy import select, or_, and_
 from app.models import User, Order, Product, ItemOrder
-from app.models.order import StatusOrder
+from app.models.types import StatusOrder
 
 from uuid import UUID
 

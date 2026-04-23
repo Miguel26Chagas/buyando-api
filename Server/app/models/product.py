@@ -11,7 +11,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from app.db.database import Base
-from app.models.types import CategoryDress, GenIdent
+from app.models.types import categorydress, genident, GenIdent
 
 class Product(Base):
     __tablename__ = "product"
@@ -21,8 +21,8 @@ class Product(Base):
     qtd_stock: Mapped[int] = mapped_column(Integer, CheckConstraint('qtd_stock > 0'), default=1, nullable=True)
     detail: Mapped[str] = mapped_column(String, default='No Details')
 
-    category: Mapped[str] = mapped_column(CategoryDress, nullable=True)
-    target_genre: Mapped[str] = mapped_column(GenIdent, server_default='UNDEFINED')
+    category: Mapped[str] = mapped_column(categorydress, nullable=True)
+    target_genre: Mapped[str] = mapped_column(genident, server_default=GenIdent.UNDEFINED.value)
     disponible: Mapped[bool] = mapped_column(Boolean, server_default='true')
     photo_urls: Mapped[List['PhotosProduct']] = relationship('PhotosProduct', cascade='all, delete-orphan', back_populates='product')
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())

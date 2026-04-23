@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from typing import List, Optional
 from app.db.database import Base
-from app.models.types import StatusOrder
+from app.models.types import statusorder, StatusOrder
 
 from uuid import UUID as py_UUID
 import uuid_utils as uuid
@@ -17,7 +17,7 @@ class Order(Base):
     id: Mapped[py_UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid7)
     seller_id: Mapped[UUID] = mapped_column(ForeignKey('seller.id'),)
     price_total: Mapped[Decimal] = mapped_column(Numeric(10, 2), CheckConstraint('price_total >= 0'), default=0)
-    status: Mapped[str] = mapped_column(StatusOrder, server_default='PENDENT')
+    status: Mapped[str] = mapped_column(statusorder, server_default=StatusOrder.PEMDENT.value)
     secret_hash: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     delivery_code: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     paid_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)

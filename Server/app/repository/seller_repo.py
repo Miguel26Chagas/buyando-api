@@ -1,6 +1,7 @@
 from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import User, Seller, Product, UserRole
+from app.models import User, Seller, Product
+from app.models.types import UserRole
 
 from uuid import UUID
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.database import Base
-from app.models.types import UserRole, GenIdent
+from app.models.types import userrole, genident, UserRole, GenIdent
 
 from uuid import UUID as py_UUID
 from uuid import UUID as py_UUID
@@ -18,12 +18,12 @@ class User(Base):
     password: Mapped[str] = mapped_column(String, nullable=False)
     profile_photo: Mapped[str] = mapped_column(String, nullable=True)
     public_photo_id: Mapped[str] = mapped_column(String, nullable=True)
-    genre: Mapped[str] = mapped_column(GenIdent, server_default='UNDEFINED', nullable=False)
+    genre: Mapped[str] = mapped_column(genident, server_default=GenIdent.UNDEFINED.value, nullable=False)
 
     # base_location: Mapped[Geometry] = mapped_column(Geometry('POINT', srid=4326), nullable=True)
 
     create_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), server_onupdate=func.now())
     seller: Mapped["Seller"] = relationship("Seller", back_populates="user", uselist=False)
-    role: Mapped[str] = mapped_column(UserRole, server_default='BUYER', nullable=False)
+    role: Mapped[str] = mapped_column(userrole, server_default=UserRole.BUYER.value, nullable=False)
     activate: Mapped[bool] = mapped_column(Boolean, server_default='true', nullable=False)

@@ -1,20 +1,33 @@
 import sqlalchemy as sa
-from sqlalchemy import Enum as SQLEnum
 from app.db.database import Base
 
 import enum
 
-class UserRole(str, enum.Enum):
-    pass
+class UserRole(enum.Enum):
+    ADMIN = 'ADMIN'
+    SELLER = 'SELLER'
+    BUYER = 'BUYER'
 
-UserRole = sa.Enum('ADMIN', 'SELLER', 'BUYER',
-                   name= 'userrole', metadata=Base.metadata)
+class GenIdent(enum.Enum):
+    MALE = 'MALE'
+    FEMALE = 'FEMALE'
+    UNISEX = 'UNISEX'
+    UNDEFINED = 'UNDEFINED'
 
-GenIdent = sa.Enum('MALE', 'FEMALE', 'UNISEX', 'UNDEFINED',
-                    name='genident', metadata=Base.metadata)
+class StatusOrder(enum.Enum):
+    CANCELED = 'CANCELED'
+    COMPLETED = 'COMPLETED'
+    AWAITING_PAYMENT = 'AWAITING_PAYMENT'
+    PEMDENT = 'PEMDENT'
+    PAID = 'PAID'
+    REFUNED = 'REFUNED'
 
-StatusOrder = sa.Enum('CANCELED', 'COMPLETED', 'AWAITING_PAYMENT', 'PEMDENT', 'PAID', 'REFUNED',
-                      name='statusorder', metadata=Base.metadata)
+class CategoryDress(enum.Enum):
+    HEAD = 'HEAD'
+    BODY = 'BODY'
+    FOOT = 'FOOT'
 
-CategoryDress = sa.Enum('HEAD', 'BODY', 'FOOT',
-                      name='categorydress', metadata=Base.metadata)
+userrole = sa.Enum(UserRole, name= 'userrole')
+genident = sa.Enum(GenIdent, name='genident')
+statusorder = sa.Enum(StatusOrder, name='statusorder')
+categorydress = sa.Enum(CategoryDress, name='categorydress')
