@@ -1,31 +1,23 @@
 from sqlalchemy import ForeignKey, String, Integer, Boolean, Float, Numeric
-from sqlalchemy import Enum as SQLEnum, CheckConstraint
+from sqlalchemy import CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from typing import List, Optional
 from app.db.database import Base
+from app.models.types import StatusOrder
 
-import enum
 from uuid import UUID as py_UUID
 import uuid_utils as uuid
 from datetime import datetime
 from decimal import Decimal
-class StatusOrder(enum.Enum):
-    CANCELED = 'CANCELED'
-    COMPLETED = 'COMPLETED'
-    AWAITING_PAYMENT = 'AWAITING_PAYMENT'
-    PENDENT = 'PENDENT'
-    PAID = 'PAID'
-    REFUNDED = 'REFUNDED'
-
 class Order(Base):
     __tablename__ = 'order'
 
     id: Mapped[py_UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid7)
     seller_id: Mapped[UUID] = mapped_column(ForeignKey('seller.id'),)
     price_total: Mapped[Decimal] = mapped_column(Numeric(10, 2), CheckConstraint('price_total >= 0'), default=0)
-    status: Mapped[StatusOrder] = mapped_column(SQLEnum(StatusOrder), default=StatusOrder.PENDENT.value)
+    status: Mapped[str] = mapped_column(StatusOrder, server_default='PENDENT')
     secret_hash: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     delivery_code: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     paid_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
