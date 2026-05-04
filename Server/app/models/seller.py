@@ -13,6 +13,7 @@ class Seller(Base):
     __tablename__ = 'seller'
 
     id: Mapped[py_UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid7)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey('user.id'), index=True)
     number_phone: Mapped[str] = mapped_column(String, nullable=True)
     email_seller: Mapped[str] = mapped_column(String)    
     locate: Mapped[str] = mapped_column(String, nullable=False)
