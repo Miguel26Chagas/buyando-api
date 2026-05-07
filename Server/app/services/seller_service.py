@@ -11,8 +11,8 @@ class SellerService():
         self.product_repo = product_repo(db)
 
     async def seller_active(self, user: User, data: SellerSchema):
-        seller_exist = await self.seller_repo.check_user_is_seller(user)
-        if seller_exist:
+        seller = await self.seller_repo.check_user_is_seller(user)
+        if seller:
             raise HTTPException(
                 status_code=400,
                 detail='Este usuario ja tem ativo uma conta vendedor'
@@ -20,11 +20,11 @@ class SellerService():
         if data.email_seller == None or '':
             data.email_seller = user.email
         try:
-            await self.seller_repo.create_seller(data, user)
+            seller = await self.seller_repo.create_seller(data, user)
         except Exception as e:
             print(f'Erro ao Salvar: {e}')
             raise HTTPException(status_code=500, detail= 'Erro ao Ativar conta vendedor')
-        return {'msg': f'Conta Vendedor Ativo!'}
+        return seller
 
     async def seller_products(self, user: User, seller_id: UUID):
         if not user.role == 'seller':
