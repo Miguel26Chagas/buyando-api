@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User, Seller, Product
-from app.schemas import SellerSchema, ProductResponse
+from app.schemas import SellerSchema, ProductResponse, SellerResponseBase
 from app.dependencies import verify_token
 from app.db.database import get_db
 
@@ -17,7 +17,7 @@ router = APIRouter(
     dependencies=[Depends(verify_token)]
 )
 
-@router.post('/active')
+@router.post('/active', response_model=SellerResponseBase)
 async def seller_active(data: SellerSchema, user: User = Depends(verify_token), db: AsyncSession = Depends(get_db)):
    seller_service = SellerService(db)
    return await seller_service.seller_active(user, data)
